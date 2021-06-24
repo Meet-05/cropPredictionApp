@@ -1,0 +1,55 @@
+# Importing essential libraries and modules
+
+from flask import Flask, render_template, request, jsonify
+import numpy as np
+import requests
+import pickle
+import io
+import sklearn
+from sklearn.preprocessing import StandardScaler
+
+
+crop_recommendation_model_path = 'Agro-NBClassifier.pkl'
+crop_recommendation_model = pickle.load(
+    open(crop_recommendation_model_path, 'rb'))
+
+
+app = Flask(__name__)
+
+
+@app.route('/crop_predict', methods=['GET'])
+def testt():
+    nitrogen = int(request.args.get("nitrogen"))
+    phosphorous = int(request.args.get('phosphorous'))
+    pottasium = int(request.args.get('pottasium'))
+    temperature = float(request.args.get('temperature'))
+    humidity = float(request.args.get('humidity'))
+    ph_level = float(request.args.get('ph_level'))
+    rainfall = float(request.args.get('rainfall'))
+    result = crop_recommendation_model.predict(
+        [[nitrogen, phosphorous, pottasium, temperature, humidity, ph_level, rainfall]])
+    print(result)
+    return jsonify({"result": str(result[0])}), 200
+
+
+@ app.route('/crop-predict', methods=['POST'])
+def crop_prediction():
+    title = 'APP'
+    if request.method == "POST":
+        Nitrogen = int(request.form['Nitrogen'])
+        Phosphorous = int(request.form['Phosphorous'])
+        Pottasium = int(request.form['Pottasium'])
+        Temperature = float(request.form['Temperature'])
+        Humidity = float(request.form['Humidity'])
+        ph_level = float(request.form['ph_level'])
+        Rainfall = float(request.form['Rainfall'])
+    prediction = crop_recommendation_model.predict(
+        [[Nitrogen, Phosphorous, Pottasium, Temperature, Humidity, ph_level, Rainfall]])
+    # output=rou
+    # return render_template("index.html",prediction_text="You Should grow {}".format(prediction))
+    return render_template('crop-result.html', prediction=prediction, title="APP")
+
+
+# ===============================================================================================
+if __name__ == '__main__':
+    app.run(debug=True)
