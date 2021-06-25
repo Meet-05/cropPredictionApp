@@ -21,16 +21,17 @@ class ResultScreen extends StatelessWidget {
             fit: BoxFit.cover),
       ),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 26.0),
+        padding: EdgeInsets.symmetric(
+            horizontal: size.height * 0.01, vertical: size.height * 0.04),
         margin: EdgeInsets.symmetric(
-            vertical: size.height * 0.4, horizontal: size.width * 0.1),
+            vertical: size.height * 0.4, horizontal: size.width * 0.09),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.black, width: 5.0),
             color: Colors.grey[300],
             borderRadius: BorderRadius.all(Radius.circular(29.0))),
         child: Text(
-          'you should grow $result  in your feild',
-          style: kStyle.copyWith(fontSize: 25.0),
+          'you should grow $result  in your field',
+          style: kStyle.copyWith(fontSize: size.height * 0.03),
         ),
       ),
     )));

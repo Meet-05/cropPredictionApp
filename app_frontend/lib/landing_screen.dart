@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import './result_screen.dart';
 import './constants.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 
 class LandingScreen extends StatefulWidget {
   @override
@@ -19,13 +20,19 @@ class _LandingScreenState extends State<LandingScreen> {
   String humidity;
   String ph_level;
   String rainfall;
+  bool isProcessing = false;
 
   void predictCrop() async {
     bool validate = _form.currentState.validate();
+
     if (validate) {
       _form.currentState.save();
+      setState(() {
+        isProcessing = true;
+      });
+
       String url =
-          'http://10.0.2.2:5000/crop_predict?nitrogen=$nitrogen&phosphorous=$phosphorous&pottasium=$pottasium&temperature=$temperature&humidity=$humidity&ph_level=$ph_level&rainfall=$rainfall';
+          'https://evening-thicket-30913.herokuapp.com/crop_predict?nitrogen=$nitrogen&phosphorous=$phosphorous&pottasium=$pottasium&temperature=$temperature&humidity=$humidity&ph_level=$ph_level&rainfall=$rainfall';
       print(url);
       final uri = Uri.parse(url);
       print('before request---');
@@ -38,10 +45,14 @@ class _LandingScreenState extends State<LandingScreen> {
         String result = response_decoded['result'];
         print(result);
         // return jsonDecode(data);
+
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => ResultScreen(result: result)));
+        setState(() {
+          isProcessing = false;
+        });
       }
     }
   }
@@ -57,7 +68,7 @@ class _LandingScreenState extends State<LandingScreen> {
               child: Form(
                 key: _form,
                 child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       buildTextContainer(
                         'nitrogen',
@@ -103,21 +114,27 @@ class _LandingScreenState extends State<LandingScreen> {
                             rainfall = value;
                           },
                           key: 'rainfall'),
-                      Center(
-                        child: MaterialButton(
-                          child: Container(
-                              margin: EdgeInsets.symmetric(vertical: 15.0),
-                              padding: EdgeInsets.all(20.0),
-                              decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0))),
-                              child: Text(
-                                'predict',
-                                style: kStyle.copyWith(fontSize: 25.0),
-                              )),
-                          onPressed: predictCrop,
-                        ),
+                      MaterialButton(
+                        child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.symmetric(vertical: 15.0),
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0))),
+                            child: isProcessing
+                                ? Center(
+                                    child: JumpingDotsProgressIndicator(
+                                        numberOfDots: 10, fontSize: 25.0),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      'predict',
+                                      style: kStyle.copyWith(fontSize: 23.0),
+                                    ),
+                                  )),
+                        onPressed: predictCrop,
                       )
                     ]),
               ),
